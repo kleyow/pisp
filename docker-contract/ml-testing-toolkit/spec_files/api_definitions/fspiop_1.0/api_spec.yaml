@@ -632,7 +632,7 @@ paths:
     get:
       description: >-
         The HTTP request GET /parties// (or GET /parties///) is used to lookup
-        information regarding the requested Party, defined by ,  and optionally 
+        information regarding the requested Party, defined by ,  and optionally
         (for example, GET /parties/MSISDN/123456789, or GET
         /parties/BUSINESS/shoecompany/employee1).
       summary: PartiesByTypeAndID
@@ -779,7 +779,7 @@ paths:
     get:
       description: >-
         The HTTP request GET /parties// (or GET /parties///) is used to lookup
-        information regarding the requested Party, defined by ,  and optionally 
+        information regarding the requested Party, defined by ,  and optionally
         (for example, GET /parties/MSISDN/123456789, or GET
         /parties/BUSINESS/shoecompany/employee1).
       summary: PartiesSubIdByTypeAndID
@@ -2446,7 +2446,7 @@ paths:
         If the server is unable to find or create a bulk transfer, or another
         processing error occurs, the error callback PUT /bulkTransfers//error is
         used. The  in the URI should contain the bulkTransferId that was used
-        for the creation of the bulk transfer (POST /bulkTransfers), or the 
+        for the creation of the bulk transfer (POST /bulkTransfers), or the
         that was used in the GET /bulkTransfers/.
       summary: BulkTransfersErrorByID
       tags:
@@ -2529,6 +2529,39 @@ paths:
             application/json:
               schema:
                 type: object
+  '/thirdpartyRequests/transactions':
+    post:
+      summary: Initiates a third party request transaction.
+      description: >
+        The HTTP request `POST /thirdpartyRequests/transactions` is sent to the Switch to initiate a third party request transaction.
+      tags:
+        - thirdpartyRequest
+      requestBody:
+        description: Thirdparty requests transaction request body.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdpartyRequestsTransactionRequest'
+      responses:
+        '202':
+          $ref: '#/components/responses/Response202'
+        '400':
+          $ref: '#/components/responses/ErrorResponse400'
+        '401':
+          $ref: '#/components/responses/ErrorResponse401'
+        '403':
+          $ref: '#/components/responses/ErrorResponse403'
+        '404':
+          $ref: '#/components/responses/ErrorResponse404'
+        '405':
+          $ref: '#/components/responses/ErrorResponse405'
+        '406':
+          $ref: '#/components/responses/ErrorResponse406'
+        '501':
+          $ref: '#/components/responses/ErrorResponse501'
+        '503':
+          $ref: '#/components/responses/ErrorResponse503'
 components:
   parameters:
     Accept:
@@ -2859,6 +2892,13 @@ components:
             $ref: '#/components/schemas/PartiesTypeIDPutResponse'
       required: true
   schemas:
+    AccountAddress:
+      title: accountAddress
+      type: string
+      description: Unique routable address which is DFSP specific.
+      pattern: ^([0-9A-Za-z_~\-\.]+[0-9A-Za-z_~\-])$
+      minLength: 1
+      maxLength: 1023
     Amount:
       title: Amount
       type: string
@@ -3168,7 +3208,7 @@ components:
         restricted by a regular expression for interoperability reasons. The
         format is according to ISO 8601, expressed in a combined date, time and
         time zone format. A more readable version of the format is
-        yyyy-MM-ddTHH:mm:ss.SSS[-HH:MM]. Examples - 
+        yyyy-MM-ddTHH:mm:ss.SSS[-HH:MM]. Examples -
         "2016-05-24T08:38:08.699-04:00", "2016-05-24T08:38:08.699Z" (where Z
         indicates Zulu time zone, same as UTC).
     ErrorCode:
@@ -4027,6 +4067,40 @@ components:
           $ref: '#/components/schemas/RefundReason'
       required:
         - originalTransactionId
+    ThirdpartyRequestsTransactionRequest:
+      title: ThirdpartyRequestTransaction
+      type: object
+      description: Object.
+      properties:
+        transactionRequestId:
+          $ref: '#/components/schemas/CorrelationId'
+        sourceAccountId:
+          $ref: '#/components/schemas/AccountAddress'
+        consentId:
+          allOf:
+            - $ref: '#/components/schemas/CorrelationId'
+        payee:
+          $ref: '#/components/schemas/Party'
+        payer:
+          $ref: '#/components/schemas/Party'
+        amountType:
+          $ref: '#/components/schemas/AmountType'
+        amount:
+          $ref: '#/components/schemas/Money'
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+        expiration:
+          $ref: '#/components/schemas/DateTime'
+      required:
+        - transactionRequestId
+        - sourceAccountId
+        - consentId
+        - payee
+        - payer
+        - amountType
+        - amount
+        - transactionType
+        - expiration
     Transaction:
       title: Transaction
       type: object
